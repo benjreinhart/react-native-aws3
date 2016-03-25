@@ -1,0 +1,32 @@
+{
+  "name": "react-native-aws3",
+  "version": "0.0.1",
+  "description": "Pure JavaScript react native library for uploading to AWS S3",
+  "author": {
+    "name": "Ben Reinhart"
+  },
+  "keywords": [
+    "react",
+    "react-native",
+    "react-component",
+    "aws",
+    "s3",
+    "image",
+    "upload",
+    "ios",
+    "android"
+  ],
+  "main": "index.js",
+  "dependencies": {
+    "buffer": "^4.5.1",
+    "crypto-js": "^3.1.6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/benjreinhart/react-native-aws3"
+  },
+  "bugs": {
+    "url": "https://github.com/benjreinhart/react-native-aws3/issues"
+  },
+  "license": "MIT"
+}
