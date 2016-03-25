@@ -6,6 +6,33 @@ React Native AWS3 is a module for uploading files to S3. Unlike other libraries 
 npm install --save react-native-aws3
 ```
 
+## Note on S3 user permissions
+
+The user associated with the `accessKey` and `secretKey` you use must have the appropriate permissions assigned to them. My user's IAM policy looks like:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Stmt1458840156000",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:GetObjectAcl",
+                "s3:GetObjectVersion",
+                "s3:PutObject",
+                "s3:PutObjectAcl",
+                "s3:PutObjectVersionAcl"
+            ],
+            "Resource": [
+                "arn:aws:s3:::my-bucket/uploads/*"
+            ]
+        }
+    ]
+}
+```
+
 ## Example
 
 ```javascript
@@ -44,7 +71,7 @@ RNS3.put(file, options).then(response => {
 });
 ```
 
-## API
+## Usage
 
 ### put
 
@@ -74,6 +101,11 @@ RNS3.put(file, options)
   .catch(/* ... */)
   .progress((e) => console.log(e.loaded / e.total));
 ```
+
+## TODO
+
+- [ ] Support AWS (authenticated) `GetObject` and `PutObject`.
+
 
 ## License
 
