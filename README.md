@@ -104,7 +104,7 @@ RNS3.put(file, options)
 
 ## TODO
 
-- [ ] Support AWS (authenticated) `GetObject` and `PutObject`.
+- [ ] Support `DeleteObject` and (authenticated) `GetObject` operations.
 
 
 ## License
