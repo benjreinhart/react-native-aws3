@@ -73,7 +73,7 @@ RNS3.put(file, options).then(response => {
 
 ## Usage
 
-### put
+### put(file, options)
 
 Upload a file to S3.
 
@@ -84,9 +84,10 @@ Arguments:
   * `name` **required** - The name of the file, will be stored as such in S3
   * `type` **required** - The mime type, also used for `Content-Type` parameter in the S3 post policy
 2. `options`
+  * `acl` - The [Access Control List](http://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html) of this object. Defaults to `public-read`.
   * `keyPrefix` - Prefix, or path to the file on S3, i.e. `uploads/` (note the trailing slash).
-  * `bucket` **required** Your S3 bucket
-  * `region` **required** The region of your S3 bucket
+  * `bucket` **required** - Your S3 bucket
+  * `region` **required** - The region of your S3 bucket
   * `accessKey` **required** - Your S3 `AWSAccessKeyId`
   * `secretKey` **required** - Your S3 `AWSSecretKey`
   * `successActionStatus` - HTTP response status if successful, defaults to 201.
