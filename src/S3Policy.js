@@ -60,7 +60,7 @@ const getPolicyParams = (options) => {
   let expiration = getExpirationDate();
 
   return {
-    acl: AWS_ACL,
+    acl: options.acl || AWS_ACL,
     algorithm: AWS_ALGORITHM,
     bucket: options.bucket,
     contentType: options.contentType,
