@@ -58,8 +58,7 @@ const getExpirationDate = () => {
 const getPolicyParams = (options) => {
   let date = getDate();
   let expiration = getExpirationDate();
-
-  return {
+  let policyParams = {
     acl: options.acl || AWS_ACL,
     algorithm: AWS_ALGORITHM,
     bucket: options.bucket,
@@ -71,11 +70,17 @@ const getPolicyParams = (options) => {
     region: options.region,
     secretKey: options.secretKey,
     successActionStatus: '' + (options.successActionStatus || DEFAULT_SUCCESS_ACTION_STATUS)
+  };
+  
+  if(options.sessionToken) {
+    policyParams.sessionToken = options.sessionToken;
   }
+
+  return policyParams;
 }
 
 const formatPolicyForRequestBody = (base64EncodedPolicy, signature, options) => {
-  return {
+  let policyForRequestBody = {
     "key": options.key,
     "acl": options.acl,
     "success_action_status": options.successActionStatus,
@@ -86,10 +91,16 @@ const formatPolicyForRequestBody = (base64EncodedPolicy, signature, options) => 
     "Policy": base64EncodedPolicy,
     "X-Amz-Signature": signature,
   }
+  
+  if(options.sessionToken) {
+    policyForRequestBody['X-Amz-Security-Token'] = options.sessionToken;
+  }
+  
+  return policyForRequestBody;
 }
 
 const formatPolicyForEncoding = (policy) => {
-  return {
+  let formattedPolicy = {
     "expiration": policy.expiration,
     "conditions": [
        {"bucket": policy.bucket},
@@ -101,7 +112,13 @@ const formatPolicyForEncoding = (policy) => {
        {"x-amz-algorithm": policy.algorithm},
        {"x-amz-date": policy.date.amzDate}
     ]
+  };
+  
+  if(policy.sessionToken) {
+    formattedPolicy.conditions.push({'x-amz-security-token': policy.sessionToken});
   }
+  
+  return formattedPolicy;
 }
 
 const getEncodedPolicy = (policy) => {
