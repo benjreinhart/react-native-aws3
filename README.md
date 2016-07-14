@@ -51,7 +51,12 @@ let options = {
   region: "us-east-1",
   accessKey: "your-access-key",
   secretKey: "your-secret-key",
-  successActionStatus: 201
+  successActionStatus: 201,
+  metadata: {
+    latitude: '123.506239',  // Becomes x-amz-meta-latitude onec in S3
+    longitude: '-23.045293',
+    photographer: 'John Doe'
+  }
 }
 
 RNS3.put(file, options).then(response => {
@@ -91,6 +96,7 @@ Arguments:
   * `accessKey` **required** - Your S3 `AWSAccessKeyId`
   * `secretKey` **required** - Your S3 `AWSSecretKey`
   * `successActionStatus` - HTTP response status if successful, defaults to 201.
+  * `metadata` - Custom metadata to attach to your object
 
 Returns an object that behaves like a promise. It also has a `progress` method on it which accepts a callback and will invoke the callback with the upload progress.
 
