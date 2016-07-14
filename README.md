@@ -106,17 +106,7 @@ RNS3.put(file, options)
 
 ## Cognito
 
-[Cognito](http://docs.aws.amazon.com/cognito/latest/developerguide/what-is-amazon-cognito.html) is a service that enables you to create unique identities for your users. You can use the Cognito pool id to retrieve a single identity id. This identity id is used to get temporary AWS credentials which include:
- 
-* `accessKey`
-* `secretKey`
-* `sessionToken`
- 
-Just include your `accessKey` and `secretKey` but also include the `sessionToken` in your `options`.
-
->  If you're making direct HTTPS API requests to AWS, you can sign those requests with the temporary security credentials that you get from the AWS Security Token Service (AWS STS). To do this, you use the access key ID and secret access key that you receive from AWS STS the same way you would use long-term credentials to sign a request. You also add to your API request the session token that you receive from AWS STS. You add the session token to an HTTP header or to a query string parameter named X-Amz-Security-Token.
-
-[More info in the AWS Docs](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_use-resources.html#RequestWithSTS)
+[Cognito](http://docs.aws.amazon.com/cognito/latest/developerguide/what-is-amazon-cognito.html) is a service that enables you to create unique identities for your users. If you are using Cognito, you'll need to pass in the session token you received from AWS Security Token Service as the `sessionToken` key in the `options` hash. See the [Cognito](http://docs.aws.amazon.com/cognito/latest/developerguide/what-is-amazon-cognito.html) and [temporary security credentials](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_use-resources.html#RequestWithSTS) documentation for more information.
 
 ## TODO
 
