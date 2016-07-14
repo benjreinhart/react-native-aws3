@@ -70,7 +70,8 @@ const getPolicyParams = (options) => {
     key: options.key,
     region: options.region,
     secretKey: options.secretKey,
-    successActionStatus: '' + (options.successActionStatus || DEFAULT_SUCCESS_ACTION_STATUS)
+    successActionStatus: '' + (options.successActionStatus || DEFAULT_SUCCESS_ACTION_STATUS),
+    metadata: options.metadata
   }
 }
 
@@ -89,7 +90,7 @@ const formatPolicyForRequestBody = (base64EncodedPolicy, signature, options) => 
 }
 
 const formatPolicyForEncoding = (policy) => {
-  return {
+  let policyForEncoding = {
     "expiration": policy.expiration,
     "conditions": [
        {"bucket": policy.bucket},
@@ -102,6 +103,13 @@ const formatPolicyForEncoding = (policy) => {
        {"x-amz-date": policy.date.amzDate}
     ]
   }
+
+  Object.keys(policy.metadata).forEach((k) => {
+    let metadata = String(policy.metadata[k])
+    policyForEncoding.conditions.push({[k]: metadata});
+  })
+
+  return policyForEncoding;
 }
 
 const getEncodedPolicy = (policy) => {
