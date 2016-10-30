@@ -43,6 +43,7 @@ export class Request {
     this._formData = new FormData();
     this._promise = new Promise((resolve, reject) => {
       this._xhr.onload = buildResponseHandler(this._xhr, resolve, reject);
+      this._xhr.onerror = buildResponseHandler(this._xhr, resolve, reject);
     });
     Object.keys(attrs).forEach((k) => this.set(k, attrs[k]));
     Object.keys(headers).forEach((k) => this.header(k, headers[k]));
@@ -70,8 +71,8 @@ export class Request {
     return this;
   }
 
-  then(fn) {
-    this._promise = this._promise.then(fn);
+  then(fn, reject) {
+    this._promise = this._promise.then(fn, reject);
     return this;
   }
 
