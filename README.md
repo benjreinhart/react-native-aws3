@@ -90,6 +90,7 @@ Arguments:
   * `region` **required** - The region of your S3 bucket
   * `accessKey` **required** - Your S3 `AWSAccessKeyId`
   * `secretKey` **required** - Your S3 `AWSSecretKey`
+  * `sessionToken` - When working w/ Cognito (info below)
   * `successActionStatus` - HTTP response status if successful, defaults to 201.
 
 Returns an object that behaves like a promise. It also has a `progress` method on it which accepts a callback and will invoke the callback with the upload progress.
@@ -102,6 +103,10 @@ RNS3.put(file, options)
   .catch(/* ... */)
   .progress((e) => console.log(e.loaded / e.total));
 ```
+
+## Cognito
+
+[Cognito](http://docs.aws.amazon.com/cognito/latest/developerguide/what-is-amazon-cognito.html) is a service that enables you to create unique identities for your users. If you are using Cognito, you'll need to pass in the session token you received from AWS Security Token Service as the `sessionToken` key in the `options` hash. See the [Cognito](http://docs.aws.amazon.com/cognito/latest/developerguide/what-is-amazon-cognito.html) and [temporary security credentials](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_use-resources.html#RequestWithSTS) documentation for more information.
 
 ## TODO
 
