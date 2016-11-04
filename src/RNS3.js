@@ -4,6 +4,7 @@
 
 import { Request } from './Request';
 import { S3Policy } from './S3Policy';
+import { Metadata } from './Metadata';
 
 const EXPECTED_RESPONSE_KEY_VALUE_RE = {
   key: /<Key>(.*)<\/Key>/,
@@ -29,17 +30,21 @@ export class RNS3 {
   static put(file, options) {
     options = Object.assign({}, options, {
       key: (options.keyPrefix || '') + file.name,
-      contentType: file.type
+      contentType: file.type,
+      metadata: Metadata.generate(options)
     });
 
     let url = `https://${ options.bucket }.s3.amazonaws.com`;
     let method = "POST";
     let policy = S3Policy.generate(options);
 
-    return Request.create(url, method, policy)
-      .set("file", file)
-      .send()
-      .then(setBodyAsParsedXML);
-  }
+    let request = Request.create(url, method, policy);
 
+    Object.keys(options.metadata).forEach((k) => request.set(k, options.metadata[k]));
+
+    request.set('file', file);
+
+    return request
+      .send()
+      .then(setBodyAsParsedXML); } 
 }
