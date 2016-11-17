@@ -93,15 +93,18 @@ Arguments:
   * `successActionStatus` - HTTP response status if successful, defaults to 201.
   * `awsUrl` - S3 Aws Url (http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region) default: s3.amazonaws.com
 
-Returns an object that behaves like a promise. It also has a `progress` method on it which accepts a callback and will invoke the callback with the upload progress.
+Returns an object that wraps an `XMLHttpRequest` instance and behaves like a promise, with the following additional methods:
 
-Example of using the response promise with `progress`:
+* `progress` - accepts a callback which will be called with an event representing the progress of the upload
+* `abort` - aborts the xhr instance
 
+Examples:
 ```javascript
 RNS3.put(file, options)
-  .then(/* ... */)
-  .catch(/* ... */)
   .progress((e) => console.log(e.loaded / e.total));
+
+RNS3.put(file, option)
+  .abort();
 ```
 
 ## TODO

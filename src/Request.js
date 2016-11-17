@@ -64,6 +64,11 @@ export class Request {
     return this;
   }
 
+  abort() {
+    this._xhr.abort();
+    return this;
+  }
+
   progress(fn) {
     if (this._xhr.upload) {
       this._xhr.upload.onprogress = fn;
