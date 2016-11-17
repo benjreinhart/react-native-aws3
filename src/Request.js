@@ -32,6 +32,13 @@ const buildResponseHandler = (xhr, resolve, reject) => {
   }
 }
 
+const decorateProgressFn = (fn) => {
+  return (e) => {
+    e.percent = e.loaded / e.total;
+    return fn(e);
+  }
+}
+
 export class Request {
   static create(...args) {
     return new this(...args);
@@ -71,7 +78,7 @@ export class Request {
 
   progress(fn) {
     if (this._xhr.upload) {
-      this._xhr.upload.onprogress = fn;
+      this._xhr.upload.onprogress = decorateProgressFn(fn);
     }
     return this;
   }

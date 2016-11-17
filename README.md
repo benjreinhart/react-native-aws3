@@ -95,13 +95,16 @@ Arguments:
 
 Returns an object that wraps an `XMLHttpRequest` instance and behaves like a promise, with the following additional methods:
 
-* `progress` - accepts a callback which will be called with an event representing the progress of the upload
+* `progress` - accepts a callback which will be called with an event representing the progress of the upload. Event object is of shape
+  * `loaded` - amount uploaded
+  * `total` - total amount to upload
+  * `percent` - number between 0 and 1 representing the percent completed
 * `abort` - aborts the xhr instance
 
 Examples:
 ```javascript
 RNS3.put(file, options)
-  .progress((e) => console.log(e.loaded / e.total));
+  .progress((e) => console.log(e.loaded / e.total)); // or console.log(e.percent)
 
 RNS3.put(file, option)
   .abort();
