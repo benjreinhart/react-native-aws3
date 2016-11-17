@@ -91,6 +91,7 @@ Arguments:
   * `accessKey` **required** - Your S3 `AWSAccessKeyId`
   * `secretKey` **required** - Your S3 `AWSSecretKey`
   * `successActionStatus` - HTTP response status if successful, defaults to 201.
+  * `awsUrl` - S3 Aws Url (http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region) default: s3.amazonaws.com
 
 Returns an object that behaves like a promise. It also has a `progress` method on it which accepts a callback and will invoke the callback with the upload progress.
 
