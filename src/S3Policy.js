@@ -34,9 +34,9 @@ export class S3Policy {
   }
 }
 
-const getDate = (timeDelta) => {
+const getDate = () => {
   let date = new Date(
-    (new Date).getTime() + timeDelta
+    (new Date).getTime()
   );
   let yymmdd = date.toISOString().slice(0, 10).replace(/-/g, "");
   let amzDate = yymmdd + "T000000Z";
@@ -53,13 +53,13 @@ const getDate = (timeDelta) => {
  */
 const getExpirationDate = (timeDelta) => {
   return new Date(
-    (new Date).getTime() + FIVE_MINUTES + Math.abs(timeDelta)
+    (new Date).getTime() + FIVE_MINUTES + (-1 * timeDelta)
   ).toISOString();
 }
 
 const getPolicyParams = (options) => {
   let timeDelta = (options.timeDelta || 0);
-  let date = getDate(timeDelta);
+  let date = getDate();
   let expiration = getExpirationDate(timeDelta);
 
   return {
