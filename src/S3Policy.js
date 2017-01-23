@@ -53,7 +53,7 @@ const getDate = () => {
  */
 const getExpirationDate = (timeDelta) => {
   return new Date(
-    (new Date).getTime() + FIVE_MINUTES + (-1 * timeDelta)
+    (new Date).getTime() + FIVE_MINUTES - timeDelta
   ).toISOString();
 }
 
