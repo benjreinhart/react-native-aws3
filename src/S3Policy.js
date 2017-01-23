@@ -34,9 +34,9 @@ export class S3Policy {
   }
 }
 
-const getDate = (options) => {
+const getDate = (timeDelta) => {
   let date = new Date(
-    (new Date).getTime() + (options.timeDelta || 0)
+    (new Date).getTime() + timeDelta
   );
   let yymmdd = date.toISOString().slice(0, 10).replace(/-/g, "");
   let amzDate = yymmdd + "T000000Z";
@@ -51,15 +51,16 @@ const getDate = (options) => {
  *
  *     2016-03-24T20:43:47.314Z
  */
-const getExpirationDate = () => {
+const getExpirationDate = (timeDelta) => {
   return new Date(
-    (new Date).getTime() + FIVE_MINUTES + (Math.abs(options.timeDelta) || 0)
+    (new Date).getTime() + FIVE_MINUTES + Math.abs(timeDelta)
   ).toISOString();
 }
 
 const getPolicyParams = (options) => {
-  let date = getDate(options);
-  let expiration = getExpirationDate();
+  let timeDelta = (options.timeDelta || 0);
+  let date = getDate(timeDelta);
+  let expiration = getExpirationDate(timeDelta);
 
   return {
     acl: options.acl || AWS_ACL,
