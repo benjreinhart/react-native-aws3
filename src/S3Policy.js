@@ -35,9 +35,7 @@ export class S3Policy {
 }
 
 const getDate = () => {
-  let date = new Date(
-    (new Date).getTime()
-  );
+  let date = new Date();
   let yymmdd = date.toISOString().slice(0, 10).replace(/-/g, "");
   let amzDate = yymmdd + "T000000Z";
   return { yymmdd: yymmdd, amzDate: amzDate }
