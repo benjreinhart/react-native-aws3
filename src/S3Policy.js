@@ -53,7 +53,7 @@ const getDate = (options) => {
  */
 const getExpirationDate = () => {
   return new Date(
-    (new Date).getTime() + FIVE_MINUTES
+    (new Date).getTime() + FIVE_MINUTES + (Math.abs(options.timeDelta) || 0)
   ).toISOString();
 }
 
