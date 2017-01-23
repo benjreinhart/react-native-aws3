@@ -92,6 +92,7 @@ Arguments:
   * `secretKey` **required** - Your S3 `AWSSecretKey`
   * `successActionStatus` - HTTP response status if successful, defaults to 201
   * `awsUrl` - [AWS S3 url](http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region). Defaults to `s3.amazonaws.com`
+  * `timeDelta` - Devices time offset from world clock in milliseconds, defaults to 0
 
 Returns an object that wraps an `XMLHttpRequest` instance and behaves like a promise, with the following additional methods:
 
