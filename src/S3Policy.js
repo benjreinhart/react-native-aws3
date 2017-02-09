@@ -49,15 +49,16 @@ const getDate = () => {
  *
  *     2016-03-24T20:43:47.314Z
  */
-const getExpirationDate = () => {
+const getExpirationDate = (timeDelta) => {
   return new Date(
-    (new Date).getTime() + FIVE_MINUTES
+    (new Date).getTime() + FIVE_MINUTES - timeDelta
   ).toISOString();
 }
 
 const getPolicyParams = (options) => {
+  let timeDelta = (options.timeDelta || 0);
   let date = getDate();
-  let expiration = getExpirationDate();
+  let expiration = getExpirationDate(timeDelta);
 
   return {
     acl: options.acl || AWS_ACL,
