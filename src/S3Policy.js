@@ -18,12 +18,22 @@ const DEFAULT_SUCCESS_ACTION_STATUS = "201";
 export class S3Policy {
   static generate(options) {
     options || (options = {});
-    assert(options.key, "Must provide `key` option with the object key");
-    assert(options.bucket, "Must provide `bucket` option with your AWS bucket name");
-    assert(options.contentType, "Must provide `contentType` option with the object content type");
-    assert(options.region, "Must provide `region` option with your AWS region");
+
+    // always required
     assert(options.accessKey, "Must provide `accessKey` option with your AWSAccessKeyId");
+    assert(options.key, "Must provide `key` option with the object key");
+    assert(options.contentType, "Must provide `contentType` option with the object content type");
+
+    if (options.presign) {
+      assert(options.acl, "Must provide 'acl' with presign option");
+      assert(options.policy, "Must provide 'policy' with presign option");
+      assert(options.signature, "Must provide 'signature' with presign option");
+      return formatPolicyForPresign(options);
+    }
+
     assert(options.secretKey, "Must provide `secretKey` option with your AWSSecretKey");
+    assert(options.bucket, "Must provide `bucket` option with your AWS bucket name");
+    assert(options.region, "Must provide `region` option with your AWS region");
 
     let policyParams = getPolicyParams(options);
     let policy = formatPolicyForEncoding(policyParams);
@@ -102,6 +112,17 @@ const formatPolicyForEncoding = (policy) => {
        {"x-amz-algorithm": policy.algorithm},
        {"x-amz-date": policy.date.amzDate}
     ]
+  }
+}
+
+const formatPolicyForPresign = (options) => {
+  return {
+    "key": options.key,
+    "AWSAccessKeyId": options.accessKey,
+    "acl": options.acl,
+    "policy": options.policy,
+    "signature": options.signature,
+    "Content-Type": options.contentType,
   }
 }
 
