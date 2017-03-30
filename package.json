@@ -17,9 +17,23 @@
     "android"
   ],
   "main": "index.js",
+  "jest": {
+    "testPathIgnorePatterns": [
+      "node_modules/"
+    ]
+  },
+  "scripts": {
+    "test": "jest",
+    "test-watch": "jest --watch"
+  },
   "dependencies": {
     "buffer": "^4.5.1",
     "crypto-js": "^3.1.6"
+  },
+  "devDependencies": {
+    "babel-jest": "^19.0.0",
+    "babel-preset-env": "^1.3.1",
+    "jest": "^19.0.2"
   },
   "repository": {
     "type": "git",
