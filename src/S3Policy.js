@@ -18,6 +18,7 @@ const DEFAULT_SUCCESS_ACTION_STATUS = "201";
 export class S3Policy {
   static generate(options) {
     options || (options = {});
+
     assert(options.key, "Must provide `key` option with the object key");
     assert(options.bucket, "Must provide `bucket` option with your AWS bucket name");
     assert(options.contentType, "Must provide `contentType` option with the object content type");
@@ -25,19 +26,19 @@ export class S3Policy {
     assert(options.accessKey, "Must provide `accessKey` option with your AWSAccessKeyId");
     assert(options.secretKey, "Must provide `secretKey` option with your AWSSecretKey");
 
-    let policyParams = getPolicyParams(options);
-    let policy = formatPolicyForEncoding(policyParams);
-    let base64EncodedPolicy = getEncodedPolicy(policy);
-    let signature = getSignature(base64EncodedPolicy, policyParams);
+    const policyParams = getPolicyParams(options);
+    const policy = formatPolicyForEncoding(policyParams);
+    const base64EncodedPolicy = getEncodedPolicy(policy);
+    const signature = getSignature(base64EncodedPolicy, policyParams);
 
     return formatPolicyForRequestBody(base64EncodedPolicy, signature, policyParams);
   }
 }
 
 const getDate = () => {
-  let date = new Date();
-  let yymmdd = date.toISOString().slice(0, 10).replace(/-/g, "");
-  let amzDate = yymmdd + "T000000Z";
+  const date = new Date();
+  const yymmdd = date.toISOString().slice(0, 10).replace(/-/g, "");
+  const amzDate = yymmdd + "T000000Z";
   return { yymmdd: yymmdd, amzDate: amzDate }
 }
 
@@ -56,9 +57,9 @@ const getExpirationDate = (timeDelta) => {
 }
 
 const getPolicyParams = (options) => {
-  let timeDelta = (options.timeDelta || 0);
-  let date = getDate();
-  let expiration = getExpirationDate(timeDelta);
+  const timeDelta = (options.timeDelta || 0);
+  const date = getDate();
+  const expiration = getExpirationDate(timeDelta);
 
   return {
     acl: options.acl || AWS_ACL,
@@ -120,10 +121,10 @@ const getSignature = (base64EncodedPolicy, options) => {
 }
 
 const getSignatureKey = (options) => {
-   let kDate = CryptoJS.HmacSHA256(options.date.yymmdd, "AWS4" + options.secretKey);
-   let kRegion = CryptoJS.HmacSHA256(options.region, kDate);
-   let kService = CryptoJS.HmacSHA256(AWS_SERVICE_NAME, kRegion);
-   let kSigning = CryptoJS.HmacSHA256(AWS_REQUEST_POLICY_VERSION, kService);
+   const kDate = CryptoJS.HmacSHA256(options.date.yymmdd, "AWS4" + options.secretKey);
+   const kRegion = CryptoJS.HmacSHA256(options.region, kDate);
+   const kService = CryptoJS.HmacSHA256(AWS_SERVICE_NAME, kRegion);
+   const kSigning = CryptoJS.HmacSHA256(AWS_REQUEST_POLICY_VERSION, kService);
 
    return kSigning;
 }
