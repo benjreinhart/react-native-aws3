@@ -17,37 +17,37 @@ describe('S3Policy.generate', () => {
   })
 
   describe('required options', () => {
-    test('ensures `key` key is present', () => {
+    test('ensures `key` option is present', () => {
       Reflect.deleteProperty(options, 'key')
       expect(() => S3Policy.generate(options)).toThrow('Must provide `key` option with the object key')
     })
 
-    test('ensures `bucket` key is present', () => {
+    test('ensures `bucket` option is present', () => {
       Reflect.deleteProperty(options, 'bucket')
       expect(() => S3Policy.generate(options)).toThrow('Must provide `bucket` option with your AWS bucket name')
     })
 
-    test('ensures `contentType` key is present', () => {
+    test('ensures `contentType` option is present', () => {
       Reflect.deleteProperty(options, 'contentType')
       expect(() => S3Policy.generate(options)).toThrow('Must provide `contentType` option with the object content type')
     })
 
-    test('ensures `region` key is present', () => {
+    test('ensures `region` option is present', () => {
       Reflect.deleteProperty(options, 'region')
       expect(() => S3Policy.generate(options)).toThrow('Must provide `region` option with your AWS region')
     })
 
-    test('ensures `date` key is present', () => {
+    test('ensures `date` option is present', () => {
       Reflect.deleteProperty(options, 'date')
       expect(() => S3Policy.generate(options)).toThrow('Must provide `date` option with the current date')
     })
 
-    test('ensures `accessKey` key is present', () => {
+    test('ensures `accessKey` option is present', () => {
       Reflect.deleteProperty(options, 'accessKey')
       expect(() => S3Policy.generate(options)).toThrow('Must provide `accessKey` option with your AWSAccessKeyId')
     })
 
-    test('ensures `secretKey` key is present', () => {
+    test('ensures `secretKey` option is present', () => {
       Reflect.deleteProperty(options, 'secretKey')
       expect(() => S3Policy.generate(options)).toThrow('Must provide `secretKey` option with your AWSSecretKey')
     })
