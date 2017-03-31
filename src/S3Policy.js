@@ -4,7 +4,6 @@
 
 const CryptoJS = require('crypto-js');
 const Buffer = global.Buffer || require('buffer').Buffer;
-const { assert } = require('./Util');
 const { dateToString } = require('./DateUtils');
 
 const FIVE_MINUTES = (5 * (60 * 1000));
@@ -15,6 +14,10 @@ const AWS_REQUEST_POLICY_VERSION = "aws4_request";
 const AWS_ALGORITHM = "AWS4-HMAC-SHA256";
 
 const DEFAULT_SUCCESS_ACTION_STATUS = "201";
+
+const assert = (object, message) => {
+  if (null == object) throw new Error(message);
+}
 
 export class S3Policy {
   static generate(options) {
