@@ -36,37 +36,29 @@ export class S3Policy {
     const policyExpiresIn = FIVE_MINUTES - timeDelta;
     const expirationDate = new Date(date.getTime() + policyExpiresIn);
 
-    options = {
+    const policyParams = {
       ...options,
-      date: {
-        amz: dateToString(date, 'amz-iso8601'),
-        yyyymmdd: dateToString(date, 'yyyymmdd'),
-        expiration: dateToString(expirationDate, 'iso8601'),
-      }
+      acl: options.acl || AWS_ACL,
+      algorithm: AWS_ALGORITHM,
+      amzDate: dateToString(date, 'amz-iso8601'),
+      yyyymmddDate: dateToString(date, 'yyyymmdd'),
+      expirationDate: dateToString(expirationDate, 'iso8601'),
+      successActionStatus: String(options.successActionStatus || DEFAULT_SUCCESS_ACTION_STATUS),
     }
 
-    const policyParams = getPolicyParams(options);
+    policyParams.credential = [
+      policyParams.accessKey,
+      policyParams.yyyymmddDate,
+      policyParams.region,
+      AWS_SERVICE_NAME,
+      AWS_REQUEST_POLICY_VERSION
+    ].join('/');
+
     const policy = formatPolicyForEncoding(policyParams);
     const base64EncodedPolicy = getEncodedPolicy(policy);
     const signature = getSignature(base64EncodedPolicy, policyParams);
 
     return formatPolicyForRequestBody(base64EncodedPolicy, signature, policyParams);
-  }
-}
-
-const getPolicyParams = (options) => {
-  return {
-    acl: options.acl || AWS_ACL,
-    algorithm: AWS_ALGORITHM,
-    bucket: options.bucket,
-    contentType: options.contentType,
-    credential:  options.accessKey + "/" + options.date.yyyymmdd + "/" + options.region + "/" + AWS_SERVICE_NAME + "/" + AWS_REQUEST_POLICY_VERSION,
-    date: options.date,
-    expiration: options.date.expiration,
-    key: options.key,
-    region: options.region,
-    secretKey: options.secretKey,
-    successActionStatus: '' + (options.successActionStatus || DEFAULT_SUCCESS_ACTION_STATUS)
   }
 }
 
@@ -78,7 +70,7 @@ const formatPolicyForRequestBody = (base64EncodedPolicy, signature, options) => 
     "Content-Type": options.contentType,
     "X-Amz-Credential": options.credential,
     "X-Amz-Algorithm": options.algorithm,
-    "X-Amz-Date": options.date.amz,
+    "X-Amz-Date": options.amzDate,
     "Policy": base64EncodedPolicy,
     "X-Amz-Signature": signature,
   }
@@ -86,7 +78,7 @@ const formatPolicyForRequestBody = (base64EncodedPolicy, signature, options) => 
 
 const formatPolicyForEncoding = (policy) => {
   return {
-    "expiration": policy.expiration,
+    "expiration": policy.expirationDate,
     "conditions": [
        {"bucket": policy.bucket},
        {"key": policy.key},
@@ -95,7 +87,7 @@ const formatPolicyForEncoding = (policy) => {
        {"Content-Type": policy.contentType},
        {"x-amz-credential": policy.credential},
        {"x-amz-algorithm": policy.algorithm},
-       {"x-amz-date": policy.date.amz}
+       {"x-amz-date": policy.amzDate}
     ]
   }
 }
@@ -115,7 +107,7 @@ const getSignature = (base64EncodedPolicy, options) => {
 }
 
 const getSignatureKey = (options) => {
-   const kDate = CryptoJS.HmacSHA256(options.date.yyyymmdd, "AWS4" + options.secretKey);
+   const kDate = CryptoJS.HmacSHA256(options.yyyymmddDate, "AWS4" + options.secretKey);
    const kRegion = CryptoJS.HmacSHA256(options.region, kDate);
    const kService = CryptoJS.HmacSHA256(AWS_SERVICE_NAME, kRegion);
    const kSigning = CryptoJS.HmacSHA256(AWS_REQUEST_POLICY_VERSION, kService);
