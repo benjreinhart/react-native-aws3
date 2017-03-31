@@ -27,11 +27,10 @@ export class S3Policy {
     assert(options.accessKey, "Must provide `accessKey` option with your AWSAccessKeyId");
     assert(options.secretKey, "Must provide `secretKey` option with your AWSSecretKey");
 
-    options = {
-      ...options,
-      date: getDate(options.date),
-      expiration: getExpirationDate(options.date, options.timeDelta || 0)
-    }
+    const policyExpiresIn = FIVE_MINUTES - (options.timeDelta || 0);
+    const decoratedDate = decorateDate(options.date, { expiresIn: policyExpiresIn });
+
+    options.date = decoratedDate;
 
     const policyParams = getPolicyParams(options);
     const policy = formatPolicyForEncoding(policyParams);
@@ -42,32 +41,48 @@ export class S3Policy {
   }
 }
 
-/**
- * Formats date for AWS policy
- *
- * returns an object with `yymmdd` and `amzDate` keys, i.e.
- *
- * { yymmdd: '20170330', amzDate: '20170330T000000Z' }
- */
-const getDate = (date) => {
-  const yymmdd = date.toISOString().slice(0, 10).replace(/-/g, "");
-  const amzDate = yymmdd + "T000000Z";
-  return { yymmdd: yymmdd, amzDate: amzDate }
-}
+const decorateDate = (date, { expiresIn }) =>
+  Object.defineProperties(date, {
+    /**
+     * Returns a string formatted like YYYYMMDD.
+     *
+     * === Example
+     *
+     *     date                 // March 31, 2017 20:43:47.314
+     *     date.yyyymmdd        // => '20170331'
+     */
+    yyyymmdd: {
+      get() { return this.toISOString().slice(0, 10).replace(/-/g, "") }
+    },
 
-/**
- * Expires in 5 minutes. Amazon will reject request
- * if it arrives after the expiration date.
- *
- * returns string in ISO8601 GMT format, i.e.
- *
- *     2016-03-24T20:43:47.314Z
- */
-const getExpirationDate = (date, timeDelta) => {
-  return new Date(
-    date.getTime() + FIVE_MINUTES - timeDelta
-  ).toISOString();
-}
+    /**
+     * Returns a string formatted in iso8601 format (without '-') with
+     * 0s for the time of day. Used for the amz date field in the policy.
+     *
+     * === Example
+     *
+     *     date                 // March 31, 2017 20:43:47.314
+     *     date.amz             // => '20170331T000000Z'
+     */
+    amz: {
+      get() { return `${this.yyyymmdd}T000000Z` }
+    },
+
+    /**
+     * Returns a string formatted in iso8601 format (with '-'). `expiresIn`
+     * option is added to current date time to get a date in the future
+     * that represents the time this request to AWS will expire.
+     *
+     * === Example
+     *
+     *     date                 // March 31, 2017 20:43:47.314
+     *     date.expiration      // => '2017-03-31T20:43:47.314Z'
+     */
+    expiration: {
+      get() { return new Date(this.getTime() + expiresIn).toISOString() }
+    }
+  })
+
 
 const getPolicyParams = (options) => {
   return {
@@ -75,9 +90,9 @@ const getPolicyParams = (options) => {
     algorithm: AWS_ALGORITHM,
     bucket: options.bucket,
     contentType: options.contentType,
-    credential:  options.accessKey + "/" + options.date.yymmdd + "/" + options.region + "/" + AWS_SERVICE_NAME + "/" + AWS_REQUEST_POLICY_VERSION,
+    credential:  options.accessKey + "/" + options.date.yyyymmdd + "/" + options.region + "/" + AWS_SERVICE_NAME + "/" + AWS_REQUEST_POLICY_VERSION,
     date: options.date,
-    expiration: options.expiration,
+    expiration: options.date.expiration,
     key: options.key,
     region: options.region,
     secretKey: options.secretKey,
@@ -93,7 +108,7 @@ const formatPolicyForRequestBody = (base64EncodedPolicy, signature, options) => 
     "Content-Type": options.contentType,
     "X-Amz-Credential": options.credential,
     "X-Amz-Algorithm": options.algorithm,
-    "X-Amz-Date": options.date.amzDate,
+    "X-Amz-Date": options.date.amz,
     "Policy": base64EncodedPolicy,
     "X-Amz-Signature": signature,
   }
@@ -110,7 +125,7 @@ const formatPolicyForEncoding = (policy) => {
        {"Content-Type": policy.contentType},
        {"x-amz-credential": policy.credential},
        {"x-amz-algorithm": policy.algorithm},
-       {"x-amz-date": policy.date.amzDate}
+       {"x-amz-date": policy.date.amz}
     ]
   }
 }
@@ -130,7 +145,7 @@ const getSignature = (base64EncodedPolicy, options) => {
 }
 
 const getSignatureKey = (options) => {
-   const kDate = CryptoJS.HmacSHA256(options.date.yymmdd, "AWS4" + options.secretKey);
+   const kDate = CryptoJS.HmacSHA256(options.date.yyyymmdd, "AWS4" + options.secretKey);
    const kRegion = CryptoJS.HmacSHA256(options.region, kDate);
    const kService = CryptoJS.HmacSHA256(AWS_SERVICE_NAME, kRegion);
    const kSigning = CryptoJS.HmacSHA256(AWS_REQUEST_POLICY_VERSION, kService);
