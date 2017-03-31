@@ -3,8 +3,12 @@ import { S3Policy } from '../src/S3Policy'
 describe('S3Policy.generate', () => {
   let options = {}
 
+  // 2017-04-15T05:00:00.000Z
+  const date = new Date(2017, 3, 15, 0, 0, 0, 0);
+
   beforeEach(() => options = {
     key: 'image.jpg',
+    date: date,
     bucket: 'my-s3-bucket',
     contentType: 'image/jpg',
     region: 'us-east-1',
@@ -28,6 +32,16 @@ describe('S3Policy.generate', () => {
       expect(() => S3Policy.generate(options)).toThrow('Must provide `contentType` option with the object content type')
     })
 
+    test('ensures `region` key is present', () => {
+      Reflect.deleteProperty(options, 'region')
+      expect(() => S3Policy.generate(options)).toThrow('Must provide `region` option with your AWS region')
+    })
+
+    test('ensures `date` key is present', () => {
+      Reflect.deleteProperty(options, 'date')
+      expect(() => S3Policy.generate(options)).toThrow('Must provide `date` option with the current date')
+    })
+
     test('ensures `accessKey` key is present', () => {
       Reflect.deleteProperty(options, 'accessKey')
       expect(() => S3Policy.generate(options)).toThrow('Must provide `accessKey` option with your AWSAccessKeyId')
@@ -39,41 +53,18 @@ describe('S3Policy.generate', () => {
     })
   })
 
-  const withDatesStubbed = (dateStubs, test) => {
-    const getDate = S3Policy.getDate
-    const getExpirationDate = S3Policy.getExpirationDate
+  it('generates the correct policy', () => {
+    const policy = S3Policy.generate(options)
 
-    return () => {
-      S3Policy.getDate = jest.fn().mockReturnValueOnce(dateStubs.getDate)
-      S3Policy.getExpirationDate = jest.fn().mockReturnValueOnce(dateStubs.getExpirationDate)
-
-      test()
-
-      expect(S3Policy.getDate.mock.calls.length).toBe(1)
-      expect(S3Policy.getExpirationDate.mock.calls.length).toBe(1)
-
-      S3Policy.getDate = getDate
-      S3Policy.getExpirationDate = getExpirationDate
-    }
-  }
-
-  it('generates the correct policy', withDatesStubbed(
-    {
-      getExpirationDate: '2017-03-30T22:22:36.059Z',
-      getDate: { yymmdd: '20170330', amzDate: '20170330T000000Z' }
-    },
-    () => {
-      const policy = S3Policy.generate(options)
-      expect(policy).toHaveProperty('key', 'image.jpg')
-      expect(policy).toHaveProperty('acl', 'public-read')
-      expect(policy).toHaveProperty('success_action_status', '201')
-      expect(policy).toHaveProperty('Content-Type', 'image/jpg')
-      expect(policy).toHaveProperty('X-Amz-Algorithm', 'AWS4-HMAC-SHA256')
-      expect(policy).toHaveProperty('X-Amz-Date', '20170330T000000Z')
-      expect(policy).toHaveProperty('X-Amz-Credential', 'AKIAA7AS6DHAD6ASN23/20170330/us-east-1/s3/aws4_request')
-      expect(policy).toHaveProperty('Policy', 'eyJleHBpcmF0aW9uIjoiMjAxNy0wMy0zMFQyMjoyMjozNi4wNTlaIiwiY29uZGl0aW9ucyI6W3siYnVja2V0IjoibXktczMtYnVja2V0In0seyJrZXkiOiJpbWFnZS5qcGcifSx7ImFjbCI6InB1YmxpYy1yZWFkIn0seyJzdWNjZXNzX2FjdGlvbl9zdGF0dXMiOiIyMDEifSx7IkNvbnRlbnQtVHlwZSI6ImltYWdlL2pwZyJ9LHsieC1hbXotY3JlZGVudGlhbCI6IkFLSUFBN0FTNkRIQUQ2QVNOMjMvMjAxNzAzMzAvdXMtZWFzdC0xL3MzL2F3czRfcmVxdWVzdCJ9LHsieC1hbXotYWxnb3JpdGhtIjoiQVdTNC1ITUFDLVNIQTI1NiJ9LHsieC1hbXotZGF0ZSI6IjIwMTcwMzMwVDAwMDAwMFoifV19')
-      expect(policy).toHaveProperty('X-Amz-Signature', '85eb411ba83c7bebb0a3e7c7acfc8136a588dd4456488bf8a79397a59c164a77')
-    }
-  ))
+    expect(policy).toHaveProperty('key', 'image.jpg')
+    expect(policy).toHaveProperty('acl', 'public-read')
+    expect(policy).toHaveProperty('success_action_status', '201')
+    expect(policy).toHaveProperty('Content-Type', 'image/jpg')
+    expect(policy).toHaveProperty('X-Amz-Algorithm', 'AWS4-HMAC-SHA256')
+    expect(policy).toHaveProperty('X-Amz-Date', '20170415T000000Z')
+    expect(policy).toHaveProperty('X-Amz-Credential', 'AKIAA7AS6DHAD6ASN23/20170415/us-east-1/s3/aws4_request')
+    expect(policy).toHaveProperty('Policy', 'eyJleHBpcmF0aW9uIjoiMjAxNy0wNC0xNVQwNTowNTowMC4wMDBaIiwiY29uZGl0aW9ucyI6W3siYnVja2V0IjoibXktczMtYnVja2V0In0seyJrZXkiOiJpbWFnZS5qcGcifSx7ImFjbCI6InB1YmxpYy1yZWFkIn0seyJzdWNjZXNzX2FjdGlvbl9zdGF0dXMiOiIyMDEifSx7IkNvbnRlbnQtVHlwZSI6ImltYWdlL2pwZyJ9LHsieC1hbXotY3JlZGVudGlhbCI6IkFLSUFBN0FTNkRIQUQ2QVNOMjMvMjAxNzA0MTUvdXMtZWFzdC0xL3MzL2F3czRfcmVxdWVzdCJ9LHsieC1hbXotYWxnb3JpdGhtIjoiQVdTNC1ITUFDLVNIQTI1NiJ9LHsieC1hbXotZGF0ZSI6IjIwMTcwNDE1VDAwMDAwMFoifV19')
+    expect(policy).toHaveProperty('X-Amz-Signature', 'fd03e708d832645922d208e9f172cb9f44ca37628a0246ff2f51b3445a561faa')
+  })
 
 })

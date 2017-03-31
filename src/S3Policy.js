@@ -23,13 +23,15 @@ export class S3Policy {
     assert(options.bucket, "Must provide `bucket` option with your AWS bucket name");
     assert(options.contentType, "Must provide `contentType` option with the object content type");
     assert(options.region, "Must provide `region` option with your AWS region");
+    assert(options.date, "Must provide `date` option with the current date");
     assert(options.accessKey, "Must provide `accessKey` option with your AWSAccessKeyId");
     assert(options.secretKey, "Must provide `secretKey` option with your AWSSecretKey");
 
-    Object.assign(options, {
-      date: S3Policy.getDate(),
-      expiration: S3Policy.getExpirationDate(options.timeDelta || 0)
-    })
+    options = {
+      ...options,
+      date: getDate(options.date),
+      expiration: getExpirationDate(options.date, options.timeDelta || 0)
+    }
 
     const policyParams = getPolicyParams(options);
     const policy = formatPolicyForEncoding(policyParams);
@@ -38,34 +40,33 @@ export class S3Policy {
 
     return formatPolicyForRequestBody(base64EncodedPolicy, signature, policyParams);
   }
+}
 
-  /**
-   * Formats date for AWS policy
-   *
-   * returns an object with `yymmdd` and `amzDate` keys, i.e.
-   *
-   * { yymmdd: '20170330', amzDate: '20170330T000000Z' }
-   */
-  static getDate() {
-    const date = new Date();
-    const yymmdd = date.toISOString().slice(0, 10).replace(/-/g, "");
-    const amzDate = yymmdd + "T000000Z";
-    return { yymmdd: yymmdd, amzDate: amzDate }
-  }
+/**
+ * Formats date for AWS policy
+ *
+ * returns an object with `yymmdd` and `amzDate` keys, i.e.
+ *
+ * { yymmdd: '20170330', amzDate: '20170330T000000Z' }
+ */
+const getDate = (date) => {
+  const yymmdd = date.toISOString().slice(0, 10).replace(/-/g, "");
+  const amzDate = yymmdd + "T000000Z";
+  return { yymmdd: yymmdd, amzDate: amzDate }
+}
 
-  /**
-   * Expires in 5 minutes. Amazon will reject request
-   * if it arrives after the expiration date.
-   *
-   * returns string in ISO8601 GMT format, i.e.
-   *
-   *     2016-03-24T20:43:47.314Z
-   */
-  static getExpirationDate(timeDelta) {
-    return new Date(
-      (new Date).getTime() + FIVE_MINUTES - timeDelta
-    ).toISOString();
-  }
+/**
+ * Expires in 5 minutes. Amazon will reject request
+ * if it arrives after the expiration date.
+ *
+ * returns string in ISO8601 GMT format, i.e.
+ *
+ *     2016-03-24T20:43:47.314Z
+ */
+const getExpirationDate = (date, timeDelta) => {
+  return new Date(
+    date.getTime() + FIVE_MINUTES - timeDelta
+  ).toISOString();
 }
 
 const getPolicyParams = (options) => {

@@ -27,10 +27,12 @@ const setBodyAsParsedXML = (response) => {
 export class RNS3 {
 
   static put(file, options) {
-    options = Object.assign({}, options, {
+    options = {
+      ...options,
       key: (options.keyPrefix || '') + file.name,
+      date: new Date,
       contentType: file.type
-    });
+    }
 
     let url = `https://${ options.bucket }.${options.awsUrl || 's3.amazonaws.com'}`;
     let method = "POST";
