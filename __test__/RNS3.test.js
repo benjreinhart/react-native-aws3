@@ -67,4 +67,81 @@ describe('RNS3.put', () => {
     expect(mockRequestSetMock.calls[0][1]).toBe(file)
   })
 
+  describe('supports `keyPrefix` option', () => {
+    it('generates a policy and performs a request', () => {
+      const policy = Symbol('policy')
+      S3Policy.generate.mockReturnValueOnce(policy)
+
+      const mockRequest = {
+        set: jest.fn(() => mockRequest),
+        send: jest.fn(() => mockRequest),
+        then: jest.fn(() => mockRequest)
+      }
+
+      Request.create.mockReturnValueOnce(mockRequest)
+
+      const result = RNS3.put(file, { ...options, keyPrefix: 'uploads/' })
+      expect(result).toBe(mockRequest)
+
+      const s3PolicyGenerateMock = S3Policy.generate.mock
+      expect(s3PolicyGenerateMock.calls.length).toBe(1)
+      expect(s3PolicyGenerateMock.calls[0][0]).toHaveProperty('date')
+      expect(s3PolicyGenerateMock.calls[0][0]).toHaveProperty('key', 'uploads/image.jpg')
+      expect(s3PolicyGenerateMock.calls[0][0]).toHaveProperty('contentType', 'image/jpg')
+      expect(s3PolicyGenerateMock.calls[0][0]).toHaveProperty('bucket', 'my-s3-bucket')
+      expect(s3PolicyGenerateMock.calls[0][0]).toHaveProperty('region', 'us-east-1')
+      expect(s3PolicyGenerateMock.calls[0][0]).toHaveProperty('accessKey', 'AKIAA7AS6DHAD6ASN23')
+      expect(s3PolicyGenerateMock.calls[0][0]).toHaveProperty('secretKey', 'pLx+brfx0u12ERMcJCfNAEOKH+bMk40ZVa7hh8')
+
+      const requestCreateMock = Request.create.mock
+      expect(requestCreateMock.calls.length).toBe(1)
+      expect(requestCreateMock.calls[0][0]).toBe('https://my-s3-bucket.s3.amazonaws.com')
+      expect(requestCreateMock.calls[0][1]).toBe('POST')
+      expect(requestCreateMock.calls[0][2]).toBe(policy)
+
+      const mockRequestSetMock = mockRequest.set.mock
+      expect(mockRequestSetMock.calls.length).toBe(1)
+      expect(mockRequestSetMock.calls[0][0]).toBe('file')
+      expect(mockRequestSetMock.calls[0][1]).toBe(file)
+    })
+  })
+
+  describe('supports `awsUrl` option', () => {
+    it('generates a policy and performs a request', () => {
+      const policy = Symbol('policy')
+      S3Policy.generate.mockReturnValueOnce(policy)
+
+      const mockRequest = {
+        set: jest.fn(() => mockRequest),
+        send: jest.fn(() => mockRequest),
+        then: jest.fn(() => mockRequest)
+      }
+
+      Request.create.mockReturnValueOnce(mockRequest)
+
+      const result = RNS3.put(file, { ...options, awsUrl: 's3.us-east-2.amazonaws.com' })
+      expect(result).toBe(mockRequest)
+
+      const s3PolicyGenerateMock = S3Policy.generate.mock
+      expect(s3PolicyGenerateMock.calls.length).toBe(1)
+      expect(s3PolicyGenerateMock.calls[0][0]).toHaveProperty('date')
+      expect(s3PolicyGenerateMock.calls[0][0]).toHaveProperty('key', 'image.jpg')
+      expect(s3PolicyGenerateMock.calls[0][0]).toHaveProperty('contentType', 'image/jpg')
+      expect(s3PolicyGenerateMock.calls[0][0]).toHaveProperty('bucket', 'my-s3-bucket')
+      expect(s3PolicyGenerateMock.calls[0][0]).toHaveProperty('region', 'us-east-1')
+      expect(s3PolicyGenerateMock.calls[0][0]).toHaveProperty('accessKey', 'AKIAA7AS6DHAD6ASN23')
+      expect(s3PolicyGenerateMock.calls[0][0]).toHaveProperty('secretKey', 'pLx+brfx0u12ERMcJCfNAEOKH+bMk40ZVa7hh8')
+
+      const requestCreateMock = Request.create.mock
+      expect(requestCreateMock.calls.length).toBe(1)
+      expect(requestCreateMock.calls[0][0]).toBe('https://my-s3-bucket.s3.us-east-2.amazonaws.com')
+      expect(requestCreateMock.calls[0][1]).toBe('POST')
+      expect(requestCreateMock.calls[0][2]).toBe(policy)
+
+      const mockRequestSetMock = mockRequest.set.mock
+      expect(mockRequestSetMock.calls.length).toBe(1)
+      expect(mockRequestSetMock.calls[0][0]).toBe('file')
+      expect(mockRequestSetMock.calls[0][1]).toBe(file)
+    })
+  })
 })
