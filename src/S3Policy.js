@@ -5,6 +5,7 @@
 const CryptoJS = require('crypto-js');
 const Buffer = global.Buffer || require('buffer').Buffer;
 const { assert } = require('./Util');
+const { dateToString } = require('./DateUtils');
 
 const FIVE_MINUTES = (5 * (60 * 1000));
 
@@ -27,10 +28,19 @@ export class S3Policy {
     assert(options.accessKey, "Must provide `accessKey` option with your AWSAccessKeyId");
     assert(options.secretKey, "Must provide `secretKey` option with your AWSSecretKey");
 
-    const policyExpiresIn = FIVE_MINUTES - (options.timeDelta || 0);
-    const decoratedDate = decorateDate(options.date, { expiresIn: policyExpiresIn });
+    const date = options.date;
+    const timeDelta = options.timeDelta || 0;
+    const policyExpiresIn = FIVE_MINUTES - timeDelta;
+    const expirationDate = new Date(date.getTime() + policyExpiresIn);
 
-    options.date = decoratedDate;
+    options = {
+      ...options,
+      date: {
+        amz: dateToString(date, 'amz-iso8601'),
+        yyyymmdd: dateToString(date, 'yyyymmdd'),
+        expiration: dateToString(expirationDate, 'iso8601'),
+      }
+    }
 
     const policyParams = getPolicyParams(options);
     const policy = formatPolicyForEncoding(policyParams);
@@ -40,49 +50,6 @@ export class S3Policy {
     return formatPolicyForRequestBody(base64EncodedPolicy, signature, policyParams);
   }
 }
-
-const decorateDate = (date, { expiresIn }) =>
-  Object.defineProperties(date, {
-    /**
-     * Returns a string formatted like YYYYMMDD.
-     *
-     * === Example
-     *
-     *     date                 // March 31, 2017 20:43:47.314
-     *     date.yyyymmdd        // => '20170331'
-     */
-    yyyymmdd: {
-      get() { return this.toISOString().slice(0, 10).replace(/-/g, "") }
-    },
-
-    /**
-     * Returns a string formatted in iso8601 format (without '-') with
-     * 0s for the time of day. Used for the amz date field in the policy.
-     *
-     * === Example
-     *
-     *     date                 // March 31, 2017 20:43:47.314
-     *     date.amz             // => '20170331T000000Z'
-     */
-    amz: {
-      get() { return `${this.yyyymmdd}T000000Z` }
-    },
-
-    /**
-     * Returns a string formatted in iso8601 format (with '-'). `expiresIn`
-     * option is added to current date time to get a date in the future
-     * that represents the time this request to AWS will expire.
-     *
-     * === Example
-     *
-     *     date                 // March 31, 2017 20:43:47.314
-     *     date.expiration      // => '2017-03-31T20:43:47.314Z'
-     */
-    expiration: {
-      get() { return new Date(this.getTime() + expiresIn).toISOString() }
-    }
-  })
-
 
 const getPolicyParams = (options) => {
   return {
