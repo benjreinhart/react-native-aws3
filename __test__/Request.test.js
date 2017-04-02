@@ -26,6 +26,13 @@ describe('Request', () => {
     Request.XMLHttpRequest = origiginalXMLHttpRequest
   })
 
+  describe('.create', () => {
+    it('creates a new instance of Request with arguments', () => {
+      const request = Request.create('https://my-s3-bucket.s3.amazonaws.com', 'POST')
+      expect(request).toBeInstanceOf(Request)
+    })
+  })
+
   describe('constructor', () => {
     it('correctly opens the xhr', () => {
       const open = jest.fn()
