@@ -2,10 +2,16 @@
  * Request
  */
 
+const isBlank = string =>
+  null == string || !/\S/.test(string)
+
+const notBlank = string =>
+  !isBlank(string)
+
 const parseHeaders = (xhr) => {
-  return xhr
-    .getAllResponseHeaders()
-    .split("\n")
+  return (xhr.getAllResponseHeaders() || '')
+    .split(/\r?\n/)
+    .filter(notBlank)
     .reduce((headers, headerString) => {
       let header = headerString.split(":")[0];
       headers[header] = xhr.getResponseHeader(header);

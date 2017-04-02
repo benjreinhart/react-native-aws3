@@ -1,4 +1,7 @@
+import { toBeEmptyObject } from './matchers'
 import { Request } from '../src/Request'
+
+expect.extend({ toBeEmptyObject })
 
 const ClassFactory = (methods, properties = {}, instances = []) =>
   class {
@@ -186,6 +189,75 @@ describe('Request', () => {
       expect(request._promise.catch).toHaveBeenCalledTimes(2)
       expect(request._promise.catch).toBeCalledWith(callbackFn1)
       expect(request._promise.catch).toBeCalledWith(callbackFn2)
+    })
+  })
+
+  describe('when xhr onload is called', () => {
+    const XHR_HEADERS = {
+      'Server': 'AmazonS3',
+      'Content-Type': 'application/xml',
+      'Location': 'https://rnaws3-uploads.s3.us-east-2.amazonaws.com/uploads%2Fimage.jpg',
+      'x-amz-request-id': 'ED7D980C128FBF54',
+      'Date': 'Sat, 01 Apr 2017 19:53:20 GMT',
+      'x-amz-id-2': '9ijY28x7WwOT8PQChPVu6928zQ14cNQFEfSTygshpL+h7unaZASKgpyZ4RwYPBSKFi7EffhK3C4=',
+      'Content-Length': '264',
+      'Etag': '"afba579120c3ed942f55c8ca50fe39fc"'
+    }
+
+    const XHR_HEADERS_STRING = Object.keys(XHR_HEADERS).map(k => `${k}: ${XHR_HEADERS[k]}`).join('\r\n')
+
+    const XHR_RESPONSE_TEXT = '<?xml version="1.0" encoding="UTF-8"?>\n<PostResponse><Location>https://rnaws3-uploads.s3.us-east-2.amazonaws.com/uploads%2Fimage.jpg</Location><Bucket>rnaws3-uploads</Bucket><Key>uploads/image.jpg</Key><ETag>"afba579120c3ed942f55c8ca50fe39fc"</ETag></PostResponse>'
+
+    it('resolves the promise with a formatted response', () => {
+      Request.XMLHttpRequest = ClassFactory(
+        {
+          open: jest.fn(),
+          getResponseHeader: header => XHR_HEADERS[header],
+          getAllResponseHeaders: () => XHR_HEADERS_STRING
+        },
+        {
+          status: 201,
+          responseText: XHR_RESPONSE_TEXT
+        }
+      )
+
+      const request = new Request('https://my-s3-bucket.s3.amazonaws.com', 'POST').then(response => {
+        expect(response).toHaveProperty('text', XHR_RESPONSE_TEXT)
+        expect(response).toHaveProperty('status', 201)
+        expect(response.headers).toMatchObject(XHR_HEADERS)
+      })
+
+      request._xhr.onload()
+
+      return request
+    })
+  })
+
+  describe('when xhr onerror is called', () => {
+    const XHR_RESPONSE_TEXT = '<?xml version="1.0" encoding="UTF-8"?>\n<PostResponse><Location>https://rnaws3-uploads.s3.us-east-2.amazonaws.com/uploads%2Fimage.jpg</Location><Bucket>rnaws3-uploads</Bucket><Key>uploads/image.jpg</Key><ETag>"afba579120c3ed942f55c8ca50fe39fc"</ETag></PostResponse>'
+
+    it('rejects the promise with a formatted response', () => {
+      Request.XMLHttpRequest = ClassFactory(
+        {
+          open: jest.fn(),
+          getResponseHeader: header => {},
+          getAllResponseHeaders: () => ''
+        },
+        {
+          status: 0,
+          responseText: XHR_RESPONSE_TEXT
+        }
+      )
+
+      const request = new Request('https://my-s3-bucket.s3.amazonaws.com', 'POST').catch(response => {
+        expect(response).toHaveProperty('text', XHR_RESPONSE_TEXT)
+        expect(response).toHaveProperty('status', 0)
+        expect(response.headers).toBeEmptyObject()
+      })
+
+      request._xhr.onerror()
+
+      return request
     })
   })
 })
