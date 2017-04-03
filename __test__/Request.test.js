@@ -3,12 +3,11 @@ import { Request } from '../src/Request'
 
 expect.extend({ toBeEmptyObject })
 
-const ClassFactory = (methods, properties = {}, instances = []) =>
+const ClassFactory = (methods, properties = {}) =>
   class {
     constructor(...args) {
       Object.assign(this, properties)
       Object.assign(Object.getPrototypeOf(this), methods)
-      instances.push(this)
     }
   }
 
@@ -67,12 +66,11 @@ describe('Request', () => {
     })
 
     it('registers onload and onerror callbacks', () => {
-      const xmlHttpRequestInstances = []
-      Request.XMLHttpRequest = ClassFactory({ open: jest.fn() }, {}, xmlHttpRequestInstances)
+      Request.XMLHttpRequest = ClassFactory({ open: jest.fn() })
 
-      new Request('https://my-s3-bucket.s3.amazonaws.com', 'POST')
+      const request = new Request('https://my-s3-bucket.s3.amazonaws.com', 'POST')
 
-      const xhr = xmlHttpRequestInstances[0]
+      const xhr = request._xhr
       expect(xhr).not.toBeUndefined()
       expect(xhr.onload).toBeInstanceOf(Function)
       expect(xhr.onerror).toBeInstanceOf(Function)
@@ -119,13 +117,10 @@ describe('Request', () => {
       const send = jest.fn()
       Request.XMLHttpRequest = ClassFactory({ open: jest.fn(), send })
 
-      const formDatainstances = []
-      Request.FormData = ClassFactory({}, {}, formDatainstances)
-
       const request = new Request('https://my-s3-bucket.s3.amazonaws.com', 'POST')
       request.send()
 
-      const formData = formDatainstances[0]
+      const formData = request._formData
       expect(send).toHaveBeenCalledTimes(1)
       expect(send).toBeCalledWith(formData)
     })
@@ -145,14 +140,13 @@ describe('Request', () => {
 
   describe('#progress', () => {
     it('sets onprogress callback on the xhr', () => {
-      const xmlHttpRequestInstances = []
-      Request.XMLHttpRequest = ClassFactory({ open: jest.fn() }, { upload: {} }, xmlHttpRequestInstances)
+      Request.XMLHttpRequest = ClassFactory({ open: jest.fn() }, { upload: {} })
 
       const request = new Request('https://my-s3-bucket.s3.amazonaws.com', 'POST')
       const progressFn = jest.fn()
       request.progress(progressFn)
 
-      const xhr = xmlHttpRequestInstances[0]
+      const xhr = request._xhr
       xhr.upload.onprogress({ loaded: 10, total: 50 })
 
       expect(progressFn).toHaveBeenCalledTimes(1)
