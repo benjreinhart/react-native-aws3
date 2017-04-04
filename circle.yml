@@ -1,0 +1,11 @@
+machine:
+  node:
+    version: 7.7.2
+
+dependencies:
+  override:
+    - npm install
+
+test:
+  override:
+    - npm run test
