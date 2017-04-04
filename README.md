@@ -42,14 +42,14 @@ The user associated with the `accessKey` and `secretKey` you use must have the a
 ```javascript
 import { RNS3 } from 'react-native-aws3';
 
-let file = {
+const file = {
   // `uri` can also be a file system path (i.e. file://)
   uri: "assets-library://asset/asset.PNG?id=655DBE66-8008-459C-9358-914E1FB532DD&ext=PNG",
   name: "image.png",
   type: "image/png"
 }
 
-let options = {
+const options = {
   keyPrefix: "uploads/",
   bucket: "your-bucket",
   region: "us-east-1",
