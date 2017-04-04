@@ -1,1 +1,1 @@
-module.exports = require('./src/RNS3');
+module.exports = require('./lib/RNS3');
