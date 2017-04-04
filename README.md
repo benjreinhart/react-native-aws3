@@ -6,6 +6,10 @@ React Native AWS3 is a module for uploading files to S3. Unlike other libraries 
 npm install --save react-native-aws3
 ```
 
+[![build status](https://circleci.com/gh/benjreinhart/react-native-aws3.svg?style=shield&circle-token=c7cb5ba4654c9d66bbfeac9809e50aa0fbf0af09)](https://circleci.com/gh/benjreinhart/react-native-aws3)
+[![npm version](https://img.shields.io/npm/v/react-native-aws3.svg?style=flat-square)](https://www.npmjs.com/package/react-native-aws3)
+[![npm downloads](https://img.shields.io/npm/dm/react-native-aws3.svg?style=flat-square)](https://www.npmjs.com/package/react-native-aws3)
+
 ## Note on S3 user permissions
 
 The user associated with the `accessKey` and `secretKey` you use must have the appropriate permissions assigned to them. My user's IAM policy looks like:
