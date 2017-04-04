@@ -17,6 +17,11 @@
     "android"
   ],
   "main": "index.js",
+  "files": [
+    "lib",
+    "src",
+    "index.js"
+  ],
   "jest": {
     "testPathIgnorePatterns": [
       "node_modules/"
