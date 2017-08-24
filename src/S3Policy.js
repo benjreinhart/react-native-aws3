@@ -2,7 +2,7 @@
  * S3Policy
  */
 
-const CryptoJS = require('crypto-js');
+const HmacSHA256 = require('crypto-js').HmacSHA256;
 const Buffer = global.Buffer || require('buffer').Buffer;
 const { dateToString } = require('./DateUtils');
 
@@ -100,17 +100,17 @@ const getEncodedPolicy = (policy) => {
 }
 
 const getSignature = (base64EncodedPolicy, options) => {
-  return CryptoJS.HmacSHA256(
+  return HmacSHA256(
     base64EncodedPolicy,
     getSignatureKey(options)
   ).toString(CryptoJS.enc.Hex);
 }
 
 const getSignatureKey = (options) => {
-   const kDate = CryptoJS.HmacSHA256(options.yyyymmddDate, "AWS4" + options.secretKey);
-   const kRegion = CryptoJS.HmacSHA256(options.region, kDate);
-   const kService = CryptoJS.HmacSHA256(AWS_SERVICE_NAME, kRegion);
-   const kSigning = CryptoJS.HmacSHA256(AWS_REQUEST_POLICY_VERSION, kService);
+   const kDate = HmacSHA256(options.yyyymmddDate, "AWS4" + options.secretKey);
+   const kRegion = HmacSHA256(options.region, kDate);
+   const kService = HmacSHA256(AWS_SERVICE_NAME, kRegion);
+   const kSigning = HmacSHA256(AWS_REQUEST_POLICY_VERSION, kService);
 
    return kSigning;
 }
