@@ -3,6 +3,7 @@
  */
 
 const HmacSHA256 = require('crypto-js').HmacSHA256;
+const Hex = require('crypto-js').enc.Hex;
 const Buffer = global.Buffer || require('buffer').Buffer;
 const { dateToString } = require('./DateUtils');
 
@@ -103,7 +104,7 @@ const getSignature = (base64EncodedPolicy, options) => {
   return HmacSHA256(
     base64EncodedPolicy,
     getSignatureKey(options)
-  ).toString(CryptoJS.enc.Hex);
+  ).toString(Hex);
 }
 
 const getSignatureKey = (options) => {
