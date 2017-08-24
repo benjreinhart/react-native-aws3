@@ -7,7 +7,7 @@ import { setBodyAsParsedXML } from './utils';
 
 const AWS_DEFAULT_S3_HOST = 's3.amazonaws.com'
 
-export class RNS3 {
+export class RNS3Client {
   static put(file, options, policy) {
     if (!policy) {
       throw new Error('missing policy');
