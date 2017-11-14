@@ -57,7 +57,7 @@ describe('RNS3.put', () => {
 
     const requestCreateMock = Request.create.mock
     expect(requestCreateMock.calls.length).toBe(1)
-    expect(requestCreateMock.calls[0][0]).toBe('https://my-s3-bucket.s3.amazonaws.com')
+    expect(requestCreateMock.calls[0][0]).toBe('https://s3.amazonaws.com/my-s3-bucket')
     expect(requestCreateMock.calls[0][1]).toBe('POST')
     expect(requestCreateMock.calls[0][2]).toBe(policy)
 
@@ -95,7 +95,7 @@ describe('RNS3.put', () => {
 
       const requestCreateMock = Request.create.mock
       expect(requestCreateMock.calls.length).toBe(1)
-      expect(requestCreateMock.calls[0][0]).toBe('https://my-s3-bucket.s3.amazonaws.com')
+      expect(requestCreateMock.calls[0][0]).toBe('https://s3.amazonaws.com/my-s3-bucket')
       expect(requestCreateMock.calls[0][1]).toBe('POST')
       expect(requestCreateMock.calls[0][2]).toBe(policy)
 
@@ -134,7 +134,7 @@ describe('RNS3.put', () => {
 
       const requestCreateMock = Request.create.mock
       expect(requestCreateMock.calls.length).toBe(1)
-      expect(requestCreateMock.calls[0][0]).toBe('https://my-s3-bucket.s3.us-east-2.amazonaws.com')
+      expect(requestCreateMock.calls[0][0]).toBe('https://s3.us-east-2.amazonaws.com/my-s3-bucket')
       expect(requestCreateMock.calls[0][1]).toBe('POST')
       expect(requestCreateMock.calls[0][2]).toBe(policy)
 
@@ -146,7 +146,7 @@ describe('RNS3.put', () => {
   })
 
   describe('parsing the XML response', () => {
-    const XML_RESPONSE = '<?xml version="1.0" encoding="UTF-8"?>\n<PostResponse><Location>https://my-s3-bucket.s3.amazonaws.com/uploads%2Fimage.jpg</Location><Bucket>my-s3-bucket</Bucket><Key>uploads/image.jpg</Key><ETag>"afba579120c3ed942f55c8ca50fe39fc"</ETag></PostResponse>'
+    const XML_RESPONSE = '<?xml version="1.0" encoding="UTF-8"?>\n<PostResponse><Location>https://s3.amazonaws.com/my-s3-bucket/uploads%2Fimage.jpg</Location><Bucket>my-s3-bucket</Bucket><Key>uploads/image.jpg</Key><ETag>"afba579120c3ed942f55c8ca50fe39fc"</ETag></PostResponse>'
     const response = {
       status: 201,
       text: XML_RESPONSE,
@@ -173,7 +173,7 @@ describe('RNS3.put', () => {
       expect(result).toHaveProperty('body.postResponse.key', 'uploads/image.jpg')
       expect(result).toHaveProperty('body.postResponse.etag', 'afba579120c3ed942f55c8ca50fe39fc')
       expect(result).toHaveProperty('body.postResponse.bucket', 'my-s3-bucket')
-      expect(result).toHaveProperty('body.postResponse.location', 'https://my-s3-bucket.s3.amazonaws.com/uploads%2Fimage.jpg')
+      expect(result).toHaveProperty('body.postResponse.location', 'https://s3.amazonaws.com/my-s3-bucket/uploads%2Fimage.jpg')
 
       const s3PolicyGenerateMock = S3Policy.generate.mock
       expect(s3PolicyGenerateMock.calls.length).toBe(1)
@@ -187,7 +187,7 @@ describe('RNS3.put', () => {
 
       const requestCreateMock = Request.create.mock
       expect(requestCreateMock.calls.length).toBe(1)
-      expect(requestCreateMock.calls[0][0]).toBe('https://my-s3-bucket.s3.amazonaws.com')
+      expect(requestCreateMock.calls[0][0]).toBe('https://s3.amazonaws.com/my-s3-bucket')
       expect(requestCreateMock.calls[0][1]).toBe('POST')
       expect(requestCreateMock.calls[0][2]).toBe(policy)
 
