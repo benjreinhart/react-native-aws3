@@ -93,7 +93,7 @@ const formatPolicyForEncoding = (policy) => {
 }
 
 const getEncodedPolicy = (policy) => {
-  return new Buffer(
+  return Buffer.from(
     JSON.stringify(policy),
     "utf-8"
   ).toString("base64");
