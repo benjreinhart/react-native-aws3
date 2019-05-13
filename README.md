@@ -97,6 +97,8 @@ Arguments:
   * `successActionStatus` - HTTP response status if successful, defaults to 201
   * `awsUrl` - [AWS S3 url](http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region). Defaults to `s3.amazonaws.com`
   * `timeDelta` - Devices time offset from world clock in milliseconds, defaults to 0
+  * `sessionToken` - When working w/ Cognito (info below)
+  * `successActionStatus` - HTTP response status if successful, defaults to 201.
 
 Returns an object that wraps an `XMLHttpRequest` instance and behaves like a promise, with the following additional methods:
 
@@ -114,6 +116,10 @@ RNS3.put(file, options)
 RNS3.put(file, option)
   .abort();
 ```
+
+## Cognito
+
+[Cognito](http://docs.aws.amazon.com/cognito/latest/developerguide/what-is-amazon-cognito.html) is a service that enables you to create unique identities for your users. If you are using Cognito, you'll need to pass in the session token you received from AWS Security Token Service as the `sessionToken` key in the `options` hash. See the [Cognito](http://docs.aws.amazon.com/cognito/latest/developerguide/what-is-amazon-cognito.html) and [temporary security credentials](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_use-resources.html#RequestWithSTS) documentation for more information.
 
 ## TODO
 
