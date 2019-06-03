@@ -5,8 +5,6 @@
 import { Request } from './Request'
 import { S3Policy } from './S3Policy'
 
-const AWS_DEFAULT_S3_HOST = 's3.amazonaws.com'
-
 const EXPECTED_RESPONSE_KEY_VALUE_RE = {
   key: /<Key>(.*)<\/Key>/,
   etag: /<ETag>"?([^"]*)"?<\/ETag>/,
@@ -30,6 +28,14 @@ const setBodyAsParsedXML = (response) =>
   })
 
 export class RNS3 {
+  static getAwsUrl(options) {
+    if(options.awsUrl) {
+      return options.awsUrl;
+    }
+
+    return `s3${options.region ? `-${options.region}` : ''}.amazonaws.com`;
+  }
+
   static put(file, options) {
     options = {
       ...options,
@@ -38,7 +44,9 @@ export class RNS3 {
       contentType: file.type
     }
 
-    const url = `https://${options.bucket}.${options.awsUrl || AWS_DEFAULT_S3_HOST}`
+    const url = options.urlAsPath ?
+      `https://${RNS3.getAwsUrl(options)}/${options.bucket}` :
+      `https://${options.bucket}.${RNS3.getAwsUrl(options)}`
     const method = "POST"
     const policy = S3Policy.generate(options)
 
