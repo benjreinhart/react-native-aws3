@@ -55,7 +55,12 @@ const options = {
   region: "us-east-1",
   accessKey: "your-access-key",
   secretKey: "your-secret-key",
-  successActionStatus: 201
+  successActionStatus: 201,
+  metadata: {
+    latitude: '123.506239',  // Becomes x-amz-meta-latitude onec in S3
+    longitude: '-23.045293',
+    photographer: 'John Doe'
+  }
 }
 
 RNS3.put(file, options).then(response => {
@@ -94,6 +99,7 @@ Arguments:
   * `region` **required** - The region of your S3 bucket
   * `accessKey` **required** - Your S3 `AWSAccessKeyId`
   * `secretKey` **required** - Your S3 `AWSSecretKey`
+  * `metadata` - Custom metadata to attach to your object
   * `successActionStatus` - HTTP response status if successful, defaults to 201
   * `awsUrl` - [AWS S3 url](http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region). Defaults to `s3.amazonaws.com`
   * `timeDelta` - Devices time offset from world clock in milliseconds, defaults to 0
