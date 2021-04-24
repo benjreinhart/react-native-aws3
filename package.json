@@ -1,6 +1,6 @@
 {
   "name": "react-native-aws3",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Pure JavaScript react native library for uploading to AWS S3",
   "author": {
     "name": "Ben Reinhart"

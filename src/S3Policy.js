@@ -63,7 +63,7 @@ export class S3Policy {
 }
 
 const formatPolicyForRequestBody = (base64EncodedPolicy, signature, options) => {
-  return {
+  var body = {
     "key": options.key,
     "acl": options.acl,
     "success_action_status": options.successActionStatus,
@@ -72,12 +72,15 @@ const formatPolicyForRequestBody = (base64EncodedPolicy, signature, options) => 
     "X-Amz-Algorithm": options.algorithm,
     "X-Amz-Date": options.amzDate,
     "Policy": base64EncodedPolicy,
-    "X-Amz-Signature": signature,
+    "X-Amz-Signature": signature
   }
+  if (options.sessionToken)
+    body["x-amz-security-token"] = options.sessionToken
+  return body
 }
 
 const formatPolicyForEncoding = (policy) => {
-  return {
+  var formattedPolicy = {
     "expiration": policy.expirationDate,
     "conditions": [
        {"bucket": policy.bucket},
@@ -90,6 +93,9 @@ const formatPolicyForEncoding = (policy) => {
        {"x-amz-date": policy.amzDate}
     ]
   }
+  if (policy.sessionToken)
+    formattedPolicy.conditions.push({"x-amz-security-token": policy.sessionToken})
+  return formattedPolicy
 }
 
 const getEncodedPolicy = (policy) => {
